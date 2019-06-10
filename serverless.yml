@@ -1,0 +1,74 @@
+service: sls-api # NOTE: update this with your service name
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  profile: mikematos84
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  # stackName: ${self:service}
+  # apiName: ${self:service}
+
+  # Environment Variables
+  environment:
+    STAGE: ${self:provider.stage}
+
+  # Policies
+  iamRoleStatements:
+    # S3 Bucket
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+      Resource:
+        - arn:aws:s3:::${self:service}-${self:provider.stage}/*
+    # DynamoDB
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan  
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-${self:provider.stage}"
+
+resources:
+  Resources:
+    # S3 Bucket
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-${self:provider.stage}
+    #DynamoDB
+    DynamoDBTable: 
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:service}-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+package:
+ include:
+   - include-me.js
+   - include-me-dir/**
+ exclude:
+   - exclude-me.js
+   - exclude-me-dir/**
+
+functions:
+  hello:
+    handler: api/test.test
+    events:
+      - http:
+          method: get
+          path: api/hello
