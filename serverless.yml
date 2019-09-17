@@ -28,7 +28,7 @@ custom:
 provider:
   name: aws
   runtime: nodejs10.x
-  profile: default
+  profile: default # uses your default .aws profile
   stage: ${self:custom.stage}
   region: ${self:custom.region}
 
