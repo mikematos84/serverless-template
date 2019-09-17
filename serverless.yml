@@ -1,18 +1,43 @@
 service: sls-api # NOTE: update this with your service name
 
+# Custom variables
+custom:
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  gw_rest_api_id:
+    Fn::Join:
+      - ""
+      - - Ref: ApiGatewayRestApi
+  gw_url:
+    Fn::Join:
+      - ""
+      - - "https://"
+        - Ref: ApiGatewayRestApi
+        - ".execute-api.${self:custom.region}.amazonaws.com/${self:custom.stage}"
+  s3:
+    bucketName:
+      default: ${self:custom.stage}-${self:service}-default
+    arn:
+      default: "arn:aws:s3:::${self:custom.s3.bucketName.default}"
+  dynamodb:
+    tableName:
+      default: ${self:custom.stage}-${self:service}-default
+    arn:
+      default: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.dynamodb.tableName.default}"
+
 provider:
   name: aws
   runtime: nodejs10.x
-  profile: mikematos84
-  stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
-  # stackName: ${self:service}
-  # apiName: ${self:service}
+  profile: default
+  stage: ${self:custom.stage}
+  region: ${self:custom.region}
 
   # Environment Variables
   environment:
-    STAGE: ${self:provider.stage}
-  
+    STAGE: ${self:custom.stage}
+    GW_REST_API_ID: ${self:custom.gw_rest_api_id}
+    GW_URL: ${self:custom.gw_url}
+
   # Policies
   iamRoleStatements:
     # S3 Bucket
@@ -21,32 +46,36 @@ provider:
         - s3:GetObject
         - s3:PutObject
       Resource:
-        - arn:aws:s3:::${self:service}-${self:provider.stage}/*
+        - ${self:custom.s3.arn.default}/*
     # DynamoDB
     - Effect: Allow
       Action:
         - dynamodb:Query
-        - dynamodb:Scan  
+        - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: 
-        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-${self:provider.stage}"
+      Resource:
+        - ${self:custom.dynamodb.arn.default}
 
 resources:
+  Outputs:
+    ApiUrl:
+      Description: "The API Gateway URL"
+      Value: ${self:custom.gw_url}
   Resources:
     # S3 Bucket
     S3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:service}-${self:provider.stage}
+        BucketName: ${self:custom.s3.bucketName.default}
     #DynamoDB
-    DynamoDBTable: 
+    DynamoDBTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Delete
       Properties:
-        TableName: ${self:service}-${self:provider.stage}
+        TableName: ${self:custom.dynamodb.tableName.default}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -58,17 +87,23 @@ resources:
           WriteCapacityUnits: 1
 
 package:
- include:
-   - include-me.js
-   - include-me-dir/**
- exclude:
-   - exclude-me.js
-   - exclude-me-dir/**
+  include:
+    - include-me.js
+    - include-me-dir/**
+  exclude:
+    - exclude-me.js
+    - exclude-me-dir/**
 
 functions:
   hello:
-    handler: api/test.test
+    handler: api/hello/hello.handler
     events:
       - http:
           method: get
           path: api/hello
+  env_variables:
+    handler: api/env_variables/env_variables.handler
+    events:
+      - http:
+          method: get
+          path: api/env_variables

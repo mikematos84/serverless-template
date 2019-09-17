@@ -1,7 +1,7 @@
 {
   "name": "serverless-template",
   "version": "1.0.0",
-  "description": "",
+  "description": "Serverless template that has been perameterized for quick and easy project setup",
   "main": "handler.js",
   "scripts": {
     "sls-deploy": "sls deploy",
