@@ -4,6 +4,7 @@
   "description": "Serverless template that has been perameterized for quick and easy project setup",
   "main": "handler.js",
   "scripts": {
+    "sls-info": "sls info --verbose | tee .slsinfo",
     "sls-deploy": "sls deploy",
     "sls-deploy-all": "sls deploy --stage dev && sls deploy --stage staging && sls deploy --stage prod",
     "sls-remove": "sls remove",

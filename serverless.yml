@@ -23,8 +23,9 @@ custom:
     tableName:
       default: ${self:custom.stage}-${self:service}-default
     arn:
-      default: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.dynamodb.tableName.default}"
+      default: "arn:aws:dynamodb:${self:custom.region}:*:table/${self:custom.dynamodb.tableName.default}"
 
+# Provider
 provider:
   name: aws
   runtime: nodejs10.x
@@ -61,16 +62,16 @@ provider:
 
 resources:
   Outputs:
-    ApiUrl:
+    ApiGatewayUrl:
       Description: "The API Gateway URL"
       Value: ${self:custom.gw_url}
   Resources:
-    # S3 Bucket
+    # S3 Buckets
     S3Bucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.s3.bucketName.default}
-    #DynamoDB
+    #DynamoDB Tables
     DynamoDBTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Delete

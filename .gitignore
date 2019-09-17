@@ -62,6 +62,7 @@ typings/
 
 # Serverless directories
 .serverless
+.slsinfo
 
 # Visual Studio Code
 .vscode
