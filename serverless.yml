@@ -61,10 +61,6 @@ provider:
         - ${self:custom.dynamodb.arn.default}
 
 resources:
-  Outputs:
-    ApiGatewayUrl:
-      Description: "The API Gateway URL"
-      Value: ${self:custom.gw_url}
   Resources:
     # S3 Buckets
     S3Bucket:
