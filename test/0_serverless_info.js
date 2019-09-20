@@ -5,7 +5,7 @@ const expect = require('chai').expect;
 
   describe('Serverless Info', function () {
 
-    this.timeout(1000 * 5);
+    this.timeout(5000);
     let info = null;
 
     it('should load ServerlessInfo class', async () => {
