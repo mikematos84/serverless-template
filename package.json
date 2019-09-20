@@ -4,11 +4,11 @@
   "description": "Serverless template that has been perameterized for quick and easy project setup",
   "main": "handler.js",
   "scripts": {
-    "sls-info": "sls info --verbose | tee .slsinfo",
     "sls-deploy": "sls deploy",
     "sls-deploy-all": "sls deploy --stage dev && sls deploy --stage staging && sls deploy --stage prod",
     "sls-remove": "sls remove",
-    "sls-remove-all": "sls remove --stage dev && sls remove --stage staging && sls remove --stage prod"
+    "sls-remove-all": "sls remove --stage dev && sls remove --stage staging && sls remove --stage prod",
+    "test": "node ./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,14 @@
   "bugs": {
     "url": "https://github.com/mikematos84/serverless-template/issues"
   },
-  "homepage": "https://github.com/mikematos84/serverless-template#readme"
+  "homepage": "https://github.com/mikematos84/serverless-template#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^6.2.0",
+    "yaml": "^1.6.0"
+  },
+  "dependencies": {
+    "yargs": "^14.0.0"
+  }
 }

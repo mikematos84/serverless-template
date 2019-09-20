@@ -1,5 +1,7 @@
 'use strict'
 
+const child = require('child_process');
+
 class ServerlessUtils {
     /**
      * Bare minimum response for lambda function. At the very
