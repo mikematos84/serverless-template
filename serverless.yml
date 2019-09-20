@@ -1,9 +1,10 @@
-service: sls-api # NOTE: update this with your service name
+service: ${file(env.yml):service} # NOTE: update this with your service name
 
 # Custom variables
 custom:
-  stage: ${opt:stage, 'dev'}
-  region: ${opt:region, 'us-east-1'}
+  env: ${file(env.yml):file(env.yml):stage, file(env.yml):default}
+  stage: ${opt:stage, file(env.yml):stage}
+  region: ${opt:region, file(env.yml):region}
   gw_rest_api_id:
     Fn::Join:
       - ""
@@ -15,15 +16,11 @@ custom:
         - Ref: ApiGatewayRestApi
         - ".execute-api.${self:custom.region}.amazonaws.com/${self:custom.stage}"
   s3:
-    bucketName:
+    bucket:
       default: ${self:custom.stage}-${self:service}-default
-    arn:
-      default: "arn:aws:s3:::${self:custom.s3.bucketName.default}"
   dynamodb:
-    tableName:
+    table:
       default: ${self:custom.stage}-${self:service}-default
-    arn:
-      default: "arn:aws:dynamodb:${self:custom.region}:*:table/${self:custom.dynamodb.tableName.default}"
 
 # Provider
 provider:
@@ -47,7 +44,7 @@ provider:
         - s3:GetObject
         - s3:PutObject
       Resource:
-        - ${self:custom.s3.arn.default}/*
+        - arn:aws:s3:::${self:custom.s3.bucket.default}/*
     # DynamoDB
     - Effect: Allow
       Action:
@@ -58,7 +55,7 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - ${self:custom.dynamodb.arn.default}
+        - arn:aws:dynamodb:${self:custom.region}:*:table/${self:custom.dynamodb.table.default}
 
 resources:
   Resources:
@@ -66,13 +63,13 @@ resources:
     S3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.s3.bucketName.default}
+        BucketName: ${self:custom.s3.bucket.default}
     #DynamoDB Tables
     DynamoDBTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Delete
       Properties:
-        TableName: ${self:custom.dynamodb.tableName.default}
+        TableName: ${self:custom.dynamodb.table.default}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
