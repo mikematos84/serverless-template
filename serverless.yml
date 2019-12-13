@@ -110,4 +110,4 @@ functions:
     events:
       - http:
           method: get
-          path: api/hello
+          path: api/hello/{id}
