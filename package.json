@@ -27,6 +27,7 @@
     "yaml": "^1.6.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.588.0",
     "yargs": "^14.0.0"
   }
 }
