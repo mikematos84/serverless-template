@@ -35,6 +35,7 @@ provider:
     STAGE: ${self:custom.stage}
     GW_REST_API_ID: ${self:custom.gw_rest_api_id}
     GW_URL: ${self:custom.gw_url}
+    DEFAULT_TABLE: ${self:custom.dynamodb.table.default}
 
   # Policies
   iamRoleStatements:
@@ -44,10 +45,16 @@ provider:
         - s3:GetObject
         - s3:PutObject
       Resource:
-        - arn:aws:s3:::${self:custom.s3.bucket.default}/*
+        - Fn::Join:
+            - ""
+            - - "arn:aws:s3:::${self:custom.s3.bucket.default}"
+        - Fn::Join:
+            - ""
+            - - "arn:aws:s3:::${self:custom.s3.bucket.default}/*"
     # DynamoDB
     - Effect: Allow
       Action:
+        - dynamodb:DescribeTable
         - dynamodb:Query
         - dynamodb:Scan
         - dynamodb:GetItem
@@ -55,7 +62,16 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource:
-        - arn:aws:dynamodb:${self:custom.region}:*:table/${self:custom.dynamodb.table.default}
+        - Fn::Join:
+            - ""
+            - - "arn:aws:dynamodb:${self:custom.region}:"
+              - Ref: AWS::AccountId
+              - ":table/${self:custom.dynamodb.table.default}"
+        - Fn::Join:
+            - ""
+            - - "arn:aws:dynamodb:${self:custom.region}:"
+              - Ref: AWS::AccountId
+              - ":table/${self:custom.dynamodb.table.default}/*"
 
 resources:
   Resources:
@@ -71,10 +87,10 @@ resources:
       Properties:
         TableName: ${self:custom.dynamodb.table.default}
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
+          - AttributeName: USER_ID
+            AttributeType: N
         KeySchema:
-          - AttributeName: id
+          - AttributeName: USER_ID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -94,4 +110,4 @@ functions:
     events:
       - http:
           method: get
-          path: api/hello
+          path: api/hello/{id}
