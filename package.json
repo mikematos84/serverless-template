@@ -4,10 +4,6 @@
   "description": "Serverless template that has been perameterized for quick and easy project setup",
   "main": "handler.js",
   "scripts": {
-    "sls-deploy": "sls deploy",
-    "sls-deploy-all": "sls deploy --stage dev && sls deploy --stage staging && sls deploy --stage prod",
-    "sls-remove": "sls remove",
-    "sls-remove-all": "sls remove --stage dev && sls remove --stage staging && sls remove --stage prod",
     "test": "node ./node_modules/mocha/bin/mocha"
   },
   "repository": {
@@ -27,7 +23,7 @@
     "yaml": "^1.6.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.588.0",
+    "aws-sdk": "^2.718.0",
     "yargs": "^14.0.0"
   }
 }
